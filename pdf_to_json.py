@@ -18,7 +18,7 @@ def merge_lines(text):
     text = re.sub(r'^.*?(?=1\s*\([A-D]\)\s*1\.)', '', text, flags=re.DOTALL)
     
     # 使用更嚴格的正則表達式找到所有題目
-    pattern = r'(\d+)\s*\(([A-D])\)\s*\d+\.'
+    pattern = r'\(([A-D])\)\s*(\d+)\.'
     # 找到所有題號的位置
     matches = list(re.finditer(pattern, text))
     
@@ -56,23 +56,23 @@ def parse_question(text):
     text = clean_text(text)
     
     # 使用更精確的正則表達式解析題號、答案和題目
-    header_pattern = r'^(\d+)\s*\(([A-D])\)\s*(\d+)\.\s*(.+?)(?=\([A-D]\))'
+    header_pattern = r'^\(([A-D])\)\s*(\d+)\.\s*(.+?)(?=\([A-D]\))'
     header_match = re.match(header_pattern, text)
     
     if not header_match:
         # 嘗試使用更寬鬆的模式匹配
-        header_pattern = r'^(\d+)\s*\(([A-D])\)\s*\d+\.(.*?)(?=\([A-D]\))'
+        header_pattern = r'^\(([A-D])\)\s*(\d+)\.(.*?)(?=\([A-D]\))'
         header_match = re.match(header_pattern, text)
         if not header_match:
-            num_match = re.match(r'^(\d+)', text)
+            num_match = re.match(r'^\(([A-D])\)\s*(\d+)', text)
             if num_match:
-                print(f"\n解析失敗的題目 {num_match.group(1)}:")
+                print(f"\n解析失敗的題目 {num_match.group(2)}:")
                 print(text)
             return None
     
-    question_id = int(header_match.group(1))
-    answer = header_match.group(2)
-    question_text = header_match.group(4).strip() if len(header_match.groups()) > 3 else ""
+    answer = header_match.group(1)
+    question_id = int(header_match.group(2))
+    question_text = header_match.group(3).strip() if len(header_match.groups()) > 2 else ""
     
     # 提取選項
     options = extract_options(text)
